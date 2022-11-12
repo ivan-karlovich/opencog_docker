@@ -28,7 +28,7 @@ ENV LAST_OS_UPDATE 2021-11-25
 # looks wrong in it.  The one in ppa:thomas-schiex is 2.75, and gestures
 # don't work with that version.
 # RUN add-apt-repository ppa:thomas-schiex/blender
-RUN add-apt-repository ppa:irie/blender
+RUN add-apt-repository ppa:irie/blender=2.71
 RUN apt-get -y update
 RUN apt-get -y upgrade
 
