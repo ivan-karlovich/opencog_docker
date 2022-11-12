@@ -9,7 +9,8 @@ xhost +local:root
 
 # Assorted grunge to let X11 use the 3D graphics acceleration.
 docker run --name="eva-owyl" --privileged  \
-   -e DISPLAY=:0.0 \
+   --net=host \
+   -e DISPLAY \
    -v /dev/video0:/dev/video0 -v /dev/snd:/dev/snd  \
    -v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 -v /dev/dri:/dev/dri \
    -v /dev/shm:/dev/shm -it opencog/eva-owyl

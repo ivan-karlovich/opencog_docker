@@ -13,7 +13,7 @@ FROM opencog/ros-indigo-blender
 MAINTAINER Linas Vepštas "linasvepstas@gmail.com"
 
 # Install required packages
-ENV LAST_OS_UPDATE 2015-02-16
+ENV LAST_OS_UPDATE 2022-05-29
 RUN apt-get -y update
 RUN apt-get -y upgrade
 RUN apt-get -y install ros-indigo-tf ros-indigo-driver-common
@@ -34,16 +34,23 @@ RUN python setup.py install
 # Install catkinized packages
 WORKDIR /catkin_ws/src
 
-RUN git clone https://github.com/hansonrobotics/pi_vision.git
-RUN git clone https://github.com/hansonrobotics/perception.git
-RUN git clone https://github.com/hansonrobotics/eva_behavior.git
-RUN git clone https://github.com/hansonrobotics/blender_api_msgs.git
-RUN git clone https://github.com/hansonrobotics/blender_api.git
+# RUN git clone https://github.com/hansonrobotics/pi_vision.git
+RUN git clone https://github.com/opencog/pi_vision.git
+# RUN git clone https://github.com/hansonrobotics/perception.git
+RUN git clone https://github.com/opencog/perception
+# RUN git clone https://github.com/hansonrobotics/eva_behavior.git
+RUN git clone https://github.com/Gaboose/eva_behavior.git
+#RUN git clone https://github.com/hansonrobotics/blender_api_msgs.git
+#RUN git clone https://github.com/hansonrobotics/blender_api.git
+RUN git clone https://github.com/opencog/blender_api_msgs.git
+RUN git clone https://github.com/opencog/blender_api.git
 
 # The pau2motors package defines the PAU messages, which are
 # needed by the perception (vision-geometry) module.
-RUN git clone https://github.com/hansonrobotics/pau2motors.git
-RUN git clone https://github.com/hansonrobotics/robots_config.git
+# RUN git clone https://github.com/hansonrobotics/pau2motors.git
+# RUN git clone https://github.com/hansonrobotics/robots_config.git
+RUN git clone https://github.com/opencog/pau2motors.git
+RUN git clone https://github.com/opencog/robots_config.git
 
 # The motor side of things is not needed for the software head.
 # RUN git clone https://github.com/geni-lab/ros_pololu_servo.git

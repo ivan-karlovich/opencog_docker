@@ -22,7 +22,7 @@ MAINTAINER Mandeep Singh Bhatia "mandeep.singh.bhatia@gmail.com"
 MAINTAINER David Hart "dhart@opencog.org"
 MAINTAINER Linas Vepštas "linasvepstas@gmail.com"
 
-ENV LAST_OS_UPDATE 2015-11-25
+ENV LAST_OS_UPDATE 2021-11-25
 
 # Get blender version 2.71; the default in trusty is 2.69, and lighting
 # looks wrong in it.  The one in ppa:thomas-schiex is 2.75, and gestures
@@ -31,6 +31,14 @@ ENV LAST_OS_UPDATE 2015-11-25
 RUN add-apt-repository ppa:irie/blender
 RUN apt-get -y update
 RUN apt-get -y upgrade
+
+# Install pYthon3.6 - needed by py... package
+RUN wget https://www.python.org/ftp/python/3.6.3/Python-3.6.3.tgz
+RUN tar -xvf Python-3.6.3.tgz
+WORKDIR /Python-3.6.3
+RUN ./configure --enable-optimizations
+RUN make -j8
+RUN make install
 
 # Blender with dependencies
 # Install x11-utils to get xdpyinfo, for X11 display debugging
@@ -46,7 +54,7 @@ RUN pip3 install rospkg catkin_pkg
 WORKDIR /catkin_ws/src
 RUN cp /opt/ros/indigo/setup.sh /etc/profile.d/ros_indigo.sh
 ENV PYTHONPATH /opt/ros/indigo/lib/python2.7/dist-packages
-RUN /usr/bin/python3 /opt/ros/indigo/bin/catkin_init_workspace
+RUN /usr/local/bin/python3 /opt/ros/indigo/bin/catkin_init_workspace
 
 # Must run catkin at least once, even if there is nothing to build;
 # it creates the needed directory structure and the needed setup.sh.

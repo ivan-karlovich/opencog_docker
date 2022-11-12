@@ -26,15 +26,21 @@ RUN apt-get -y install ros-indigo-joint-state-publisher
 # Install catkinized packages
 WORKDIR /catkin_ws/src
 
-RUN git clone https://github.com/hansonrobotics/pi_vision.git
-RUN git clone https://github.com/hansonrobotics/perception.git
-RUN git clone https://github.com/hansonrobotics/blender_api_msgs.git
-RUN git clone https://github.com/hansonrobotics/blender_api.git
+# RUN git clone https://github.com/hansonrobotics/pi_vision.git
+RUN git clone https://github.com/opencog/pi_vision.git
+# RUN git clone https://github.com/hansonrobotics/perception.git
+RUN git clone https://github.com/opencog/perception
+# RUN git clone https://github.com/hansonrobotics/blender_api_msgs.git
+# RUN git clone https://github.com/hansonrobotics/blender_api.git
+RUN git clone https://github.com/opencog/blender_api_msgs.git
+RUN git clone https://github.com/opencog/blender_api.git
 
 # The pau2motors package defines the PAU messages, which are
 # needed by the perception (vision-geometry) module.
-RUN git clone https://github.com/hansonrobotics/pau2motors.git
-RUN git clone https://github.com/hansonrobotics/robots_config.git
+# RUN git clone https://github.com/hansonrobotics/pau2motors.git
+# RUN git clone https://github.com/hansonrobotics/robots_config.git
+RUN git clone https://github.com/opencog/pau2motors.git
+RUN git clone https://github.com/opencog/robots_config.git
 
 # The OpenCog github account mirrors all of the Hanson Robotics
 # software.  At this time, the two are in sync with each-other.

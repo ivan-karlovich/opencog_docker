@@ -15,12 +15,18 @@ MAINTAINER Linas Vepštas "linasvepstas@gmail.com"
 # http://stackoverflow.com/questions/25019183/docker-java7-install-fail
 ENV DEBIAN_FRONTEND noninteractive
 
-ENV LAST_OS_UPDATE 2016-02-29
+ENV LAST_OS_UPDATE 2022-05-29
 RUN apt-get -y update
 RUN apt-get -y upgrade
 
 # Need software-properties-common for `add-apt-repository` command
 RUN apt-get -y install wget software-properties-common
+# START: Add sudo command
+# RUN su -
+# RUN apt-get install sudo -y
+# RUN usermod -aG sudo root
+# RUN exit
+# END
 RUN wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
 RUN echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list
 RUN apt-get -y update
