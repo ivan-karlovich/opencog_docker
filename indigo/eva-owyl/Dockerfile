@@ -23,12 +23,12 @@ RUN apt-get -y install ros-indigo-usb-cam
 # The below are needed by perception node
 RUN apt-get -y install ros-indigo-dynamixel-msgs
 RUN apt-get -y install ros-indigo-robot-state-publisher
-RUN apt-get -y install ros-indigo-joint-state-publishe
+RUN apt-get -y install ros-indigo-joint-state-publisher
 
 # need it to fix the following error thrown by face-tracker node:
 # `Failed to load module “canberra-gtk-module”`
 # see https://askubuntu.com/a/872397
-RUN apt install libcanberra-gtk-module libcanberra-gtk3-module
+RUN apt install -y libcanberra-gtk-module libcanberra-gtk3-module
 
 # Owyl setup
 WORKDIR /opt/
@@ -85,6 +85,10 @@ RUN bash -l -c "/opt/ros/indigo/bin/catkin_make" || true
 RUN bash -l -c "/opt/ros/indigo/bin/catkin_make"
 
 RUN echo source /catkin_ws/devel/setup.bash >> ~/.bashrc
+# fix the following issue with ALSA:
+# "ALSA lib pcm_dmix.c:1022:(snd_pcm_dmix_open) unable to open slave"
+# see https://github.com/kevineye/docker-shairport-sync/issues/5
+RUN echo "options snd_hda_intel index=1" > /etc/modprobe.d/default.conf
 
 COPY /scripts/eva.sh /catkin_ws/eva.sh
 
