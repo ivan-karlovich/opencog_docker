@@ -36,6 +36,8 @@ RUN apt-get -y update
 # Need vim so that we can do at least some basic debugging.
 RUN apt-get -y install ros-indigo-ros-base ros-indigo-angles
 RUN apt-get -y install git tmux byobu vim
+# nano is a command line text editor - useful to check and edit content of the files
+RUN apt-get -y install nano
 
 # Make vim be usable instead of insane.
 COPY /scripts/.vimrc /root/

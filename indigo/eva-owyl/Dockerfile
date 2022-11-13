@@ -23,7 +23,12 @@ RUN apt-get -y install ros-indigo-usb-cam
 # The below are needed by perception node
 RUN apt-get -y install ros-indigo-dynamixel-msgs
 RUN apt-get -y install ros-indigo-robot-state-publisher
-RUN apt-get -y install ros-indigo-joint-state-publisher
+RUN apt-get -y install ros-indigo-joint-state-publishe
+
+# need it to fix the following error thrown by face-tracker node:
+# `Failed to load module “canberra-gtk-module”`
+# see https://askubuntu.com/a/872397
+RUN apt install libcanberra-gtk-module libcanberra-gtk3-module
 
 # Owyl setup
 WORKDIR /opt/
@@ -35,11 +40,15 @@ RUN python setup.py install
 WORKDIR /catkin_ws/src
 
 # RUN git clone https://github.com/hansonrobotics/pi_vision.git
-RUN git clone https://github.com/opencog/pi_vision.git
+# need ros-indigo tag as master branch is for ROS noetic
+RUN git clone https://github.com/opencog/pi_vision.git --branch ros-indigo --single-branch
 # RUN git clone https://github.com/hansonrobotics/perception.git
 RUN git clone https://github.com/opencog/perception
 # RUN git clone https://github.com/hansonrobotics/eva_behavior.git
-RUN git clone https://github.com/Gaboose/eva_behavior.git
+# basic_head_api.msg package is required by eva_behavior
+RUN git clone https://github.com/ivan-karlovich/hansonrobotics_basic_head_api.git basic_head_api
+#RUN git clone https://github.com/Gaboose/eva_behavior.git
+RUN git clone https://github.com/ivan-karlovich/eva_behavior.git
 #RUN git clone https://github.com/hansonrobotics/blender_api_msgs.git
 #RUN git clone https://github.com/hansonrobotics/blender_api.git
 RUN git clone https://github.com/opencog/blender_api_msgs.git
