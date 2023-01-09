@@ -19,8 +19,8 @@ RUN apt-get -y install gcc g++ cmake binutils-dev libiberty-dev \
     libboost-serialization-dev libboost-system-dev libboost-thread-dev \
     cxxtest
 
-# RUN apt-get -y install libboost-dev 
-# RUN apt-get -y install libboost-all-dev
+# nano is a command line text editor - useful to check and edit content of the files
+RUN apt-get -y install nano
 
 # install Boost 1.60+ as required by opencog.cogutils (SET_MIN_BOOST=1.60 in CMakeFiles.txt)
 # RUN add-apt-repository -y ppa:mhier/libboost-latest
@@ -47,8 +47,14 @@ RUN apt-get -y install wordnet-dev wordnet-sense-index openjdk-7-jdk \
 # Additional stuff for OpenCog. We need telnet as a debug utility.
 # Need wget to download link-grammar source.
 # Need unzip to unzip JWNL.
-RUN apt-get -y install guile-2.0-dev cython unixodbc-dev odbc-postgresql \
+RUN apt-get -y install cython unixodbc-dev odbc-postgresql \
     wget telnet locales rlwrap unzip
+# install guile 2.2.2+ as required by opencog/atomspace (see OpenCogFindGuile.cmake)
+# source: https://lists.gnu.org/archive/html/guile-user/2017-12/msg00083.html
+RUN add-apt-repository -y ppa:dank/guile-2.2
+RUN apt-get update
+RUN apt-get -y install guile-2.2 guile-2.2-dev
+# install also guile-2.2-libs?
 
 # install gcc-7
 RUN apt-get update
@@ -61,7 +67,20 @@ RUN apt-get -y install gcc-7 g++-7
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 70 --slave /usr/bin/g++ g++ /usr/bin/g++-7
 
 # Ubuntu 14.04 has CMake v2.8.12 by default but v3 is required (by opencog/cogutil?)
-RUN apt-get -y install cmake3
+# cmake3 will install cmake v3.5.1 but better version is 3.12+ as some CMakeFiles.txt in the project
+# use ADD_COMPILE_DEFINITIONS command which is available starting cmake 3.12
+# RUN apt-get -y install cmake3
+# change thhe value of the var to reset cache after this line - Docker will used cached content before this line
+ENV CMAKE 2022-01-01
+WORKDIR /usr/src
+RUN wget http://www.cmake.org/files/v3.12/cmake-3.12.1.tar.gz
+RUN tar -xvzf cmake-3.12.1.tar.gz
+WORKDIR /usr/src/cmake-3.12.1/
+RUN ./configure
+RUN make
+RUN make install
+RUN update-alternatives --install /usr/bin/cmake cmake /usr/local/bin/cmake 1 --force
+WORKDIR /
 
 # -------------------------------------------------------------
 # Right now, just clone the OpenCog sources. They will be built
@@ -147,48 +166,49 @@ RUN cd /opencog/ && find . -maxdepth 1 -mindepth 1 -type d \
 	-execdir git --git-dir=$PWD/{}/.git --work-tree=$PWD/{} pull \;
 
 # Build the base software.
-# RUN (mkdir /opencog/cogutil/build; cd /opencog/cogutil/build; \
-# 	cmake ..; make -j6; make install)
-# RUN (mkdir /opencog/atomspace/build; cd /opencog/atomspace/build; \
-# 	cmake ..; make -j12; make install)
-# RUN (mkdir /opencog/opencog/build; cd /opencog/opencog/build; \
-# 	cmake ..; make -j12; make install)
-# RUN (cd /opencog/relex; ant build; ant install)
+RUN (mkdir /opencog/cogutil/build; cd /opencog/cogutil/build; \
+	cmake ..; make -j12; make install)
 
-# # Build the unit tests. This is .. optional, but we do it anyway,
-# # for right now, just to sanity-check things.
-# # WORKDIR /opencog/cogutil/build
-# # RUN bash -l -c "make -j6 tests"
-# #
-# # WORKDIR /opencog/atomspace/build
-# # RUN bash -l -c "make -j12 tests"
-# #
-# # WORKDIR /opencog/opencog/build
-# # RUN bash -l -c "make -j12 tests"
-# #
-# COPY /scripts/.guile /root/
-# COPY /scripts/unit-test.sh /root/
-# COPY /scripts/tmux.sh /root/
+RUN (mkdir /opencog/atomspace/build; cd /opencog/atomspace/build; \
+	cmake ..; make -j12; make install)
+RUN (mkdir /opencog/opencog/build; cd /opencog/opencog/build; \
+	cmake ..; make -j12; make install)
+RUN (cd /opencog/relex; ant build; ant install)
 
-# # Pre-compile the guile modules. We could say `guild comple ...`, but
-# # this is easier. This avoids fly compilation during container start.
-# RUN (bash -l -c "echo \"(use-modules (opencog))\" | guile ; \
-#   echo \"(use-modules (opencog exec))\" | guile ; \
-#   echo \"(use-modules (opencog logger))\" | guile ; \
-#   echo \"(use-modules (opencog persist))\" | guile ; \
-#   echo \"(use-modules (opencog persist-sql))\" | guile ; \
-#   echo \"(use-modules (opencog query))\" | guile ; \
-#   echo \"(use-modules (opencog rule-engine))\" | guile ; \
-#   echo \"(use-modules (opencog atom-types))\" | guile ; \
-#   echo \"(use-modules (opencog cogserver))\" | guile ; \
-#   echo \"(use-modules (opencog nlp))\" | guile ; \
-#   echo \"(use-modules (opencog nlp chatbot))\" | guile ; \
-#   echo \"(use-modules (opencog nlp chatbot-eva))\" | guile ; \
-#   echo \"(use-modules (opencog nlp fuzzy))\" | guile ; \
-#   echo \"(use-modules (opencog nlp lg-dict))\" | guile ; \
-#   echo \"(use-modules (opencog nlp microplanning))\" | guile ; \
-#   echo \"(use-modules (opencog nlp relex2logic))\" | guile ; \
-#   echo \"(use-modules (opencog nlp sureal))\" | guile ")
+# Build the unit tests. This is .. optional, but we do it anyway,
+# for right now, just to sanity-check things.
+# WORKDIR /opencog/cogutil/build
+# RUN bash -l -c "make -j6 tests"
+#
+# WORKDIR /opencog/atomspace/build
+# RUN bash -l -c "make -j12 tests"
+#
+# WORKDIR /opencog/opencog/build
+# RUN bash -l -c "make -j12 tests"
+#
+COPY /scripts/.guile /root/
+COPY /scripts/unit-test.sh /root/
+COPY /scripts/tmux.sh /root/
+
+# Pre-compile the guile modules. We could say `guild comple ...`, but
+# this is easier. This avoids fly compilation during container start.
+RUN (bash -l -c "echo \"(use-modules (opencog))\" | guile ; \
+  echo \"(use-modules (opencog exec))\" | guile ; \
+  echo \"(use-modules (opencog logger))\" | guile ; \
+  echo \"(use-modules (opencog persist))\" | guile ; \
+  echo \"(use-modules (opencog persist-sql))\" | guile ; \
+  echo \"(use-modules (opencog query))\" | guile ; \
+  echo \"(use-modules (opencog rule-engine))\" | guile ; \
+  echo \"(use-modules (opencog atom-types))\" | guile ; \
+  echo \"(use-modules (opencog cogserver))\" | guile ; \
+  echo \"(use-modules (opencog nlp))\" | guile ; \
+  echo \"(use-modules (opencog nlp chatbot))\" | guile ; \
+  echo \"(use-modules (opencog nlp chatbot-eva))\" | guile ; \
+  echo \"(use-modules (opencog nlp fuzzy))\" | guile ; \
+  echo \"(use-modules (opencog nlp lg-dict))\" | guile ; \
+  echo \"(use-modules (opencog nlp microplanning))\" | guile ; \
+  echo \"(use-modules (opencog nlp relex2logic))\" | guile ; \
+  echo \"(use-modules (opencog nlp sureal))\" | guile ")
 
 WORKDIR /root
 # ENTRYPOINT bash -l -c "./unit-test.sh; bash"
